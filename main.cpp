@@ -6,19 +6,42 @@ using json = nlohmann::json ;
 class queryUrl
 {
 private:
-    httplib::Client *cli;
+    httplib::Client *cli;       //this resource is being init in the constructor, hence rule of 3 needs to be implemented
+    std::string urlToCall;
     std::string responseBodyData;
 public:
     queryUrl(std::string url);
+    queryUrl(const queryUrl& other);        //copy constructor
+    queryUrl& operator=(const queryUrl& other);
     void queryBaseAndPrint();
     void queryConvertToJson();
     ~queryUrl();
 };
 
-queryUrl::queryUrl(std::string url)
+queryUrl::queryUrl(std::string url):urlToCall(url)
 {
-    cli = new httplib::Client(url);
+    this->cli = new httplib::Client(this->urlToCall);
 }
+
+//copy constructor to avoid shallow copy
+queryUrl::queryUrl(const queryUrl& other):urlToCall(other.urlToCall){
+
+    this->cli = new httplib::Client(this->urlToCall);
+}
+
+queryUrl& queryUrl::operator=(const queryUrl& other){
+    if (this == &other) {
+        return (*this);    //dont copy itself into itself
+    }
+    else
+    {
+    this->urlToCall = other.urlToCall;
+    this->cli = new httplib::Client(this->urlToCall);
+    return *this;
+    }
+}
+
+
 
 void queryUrl::queryBaseAndPrint(){
     if(auto getResponse = this->cli->Get("/")){
@@ -44,13 +67,23 @@ void queryUrl::queryConvertToJson(){
 
 queryUrl::~queryUrl()
 {
+    if(cli)
+    {
+        delete cli;
+        cli = nullptr;
+    }
+
 }
 
 
 int main(int, char**) {
     std::cout << "Hello, world!\n";
     queryUrl call("http://127.0.0.1:5000");
+    queryUrl call2 = call;
     
    call.queryBaseAndPrint();
    call.queryConvertToJson();
+
+   call2.queryBaseAndPrint();
+   call2.queryConvertToJson();
 }
