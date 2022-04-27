@@ -44,15 +44,14 @@ queryUrl& queryUrl::operator=(const queryUrl& other){
 
 
 void queryUrl::queryBaseAndPrint(){
-    if(auto getResponse = this->cli->Get("/")){
-    std::cout << getResponse->body << std::endl;
+    if(auto getResponse = this->cli->Get("/iolinkmaster/port[1]/iolinkdevice/pdin/getdata")){
+    std::cout << "string response is : " << getResponse->body << std::endl;
     responseBodyData = getResponse->body;
     }
     else
     {
-        std::cout << getResponse.error() << std::endl;
+        std::cout << "Error is : "  << getResponse.error() << std::endl;
     }
-    
 }
 
 void queryUrl::queryConvertToJson(){
@@ -77,13 +76,26 @@ queryUrl::~queryUrl()
 
 
 int main(int, char**) {
-    std::cout << "Hello, world!\n";
-    queryUrl call("http://127.0.0.1:5000");
-    queryUrl call2 = call;
-    
-   call.queryBaseAndPrint();
-   call.queryConvertToJson();
 
-   call2.queryBaseAndPrint();
-   call2.queryConvertToJson();
+    try
+    {
+        std::cout << "Program start \n";
+        queryUrl call("http://192.168.10.163");
+        // queryUrl call2 = call;
+    
+        call.queryBaseAndPrint();
+        //    call.queryConvertToJson();
+
+        //    call2.queryBaseAndPrint();
+        //    call2.queryConvertToJson();
+    }
+    catch(const std::exception& e)
+    {
+        std::cerr << e.what() << '\n';
+    }
+    
+
+    
+
+    return (0);
 }
